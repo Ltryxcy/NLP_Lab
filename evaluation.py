@@ -56,7 +56,8 @@ if __name__ == '__main__':
     transformer.eval()
     
     # 初始化 BLEU 分数计算
-    bleu_scores = []
+    bleu_scores1 = []
+    bleu_scores2 = []
 
     # 遍历测试数据集
     for de, en in valid_dataset:
@@ -70,13 +71,26 @@ if __name__ == '__main__':
         
         # 计算句子级 BLEU 分数
         bleu_score_sentence = bleu_score([en_pred_tokens], [[en_ref_tokens]])
-        bleu_scores.append(bleu_score_sentence)
+        bleu_scores1.append(bleu_score_sentence)
         
         # 打印结果
-        # print(f'{de} -> {en} -> {en_pred} (BLEUScore: {bleu_score_sentence:.4f})')
-        # print(f'(BLEUScore: {bleu_score_sentence:.4f})')
+        # print(f'{de} -> {en} -> {en_pred} (BLEUScore: {bleu_score_sentence * 100.0:.4f})')
+        # print(f'(BLEUScore: {bleu_score_sentence * 100.0 :.4f})')
     
     # 计算平均 BLEU 分数
-    avg_bleu_score = sum(bleu_scores) / len(bleu_scores)
-    print(f'Average BLEU Score: {avg_bleu_score:.4f}')
+    avg_bleu_score = sum(bleu_scores1) / len(bleu_scores1)
+    print(f'Average BLEU Score for Adam: {avg_bleu_score *100.0:.4f}')
+    transformer = torch.load('checkpoints/model.pth')
+    transformer.eval()
+    for de, en in valid_dataset:
+        en_pred = translate(transformer, de)
+        en_pred_tokens = en_pred.split()
+        en_ref_tokens = en.split()
+        
+        bleu_score_sentence = bleu_score([en_pred_tokens], [[en_ref_tokens]])
+        bleu_scores2.append(bleu_score_sentence)
+        
+    avg_bleu_score_2 = sum(bleu_scores2) / len(bleu_scores2)
+    print(f'Average BLEU Score for SGD: {avg_bleu_score_2 *100.0:.4f}')
+
     
