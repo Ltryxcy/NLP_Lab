@@ -17,19 +17,15 @@ def translate(transformer, de_sentence):
         raise Exception('不支持超过{}的句子'.format(max_len))
 
     # Encoder阶段
-    enc_x_batch = torch.tensor([de_ids],
-                               dtype=torch.long).to(DEVICE)  # 准备encoder输入
+    enc_x_batch = torch.tensor([de_ids], dtype=torch.long).to(DEVICE)  # 准备encoder输入
     encoder_z = transformer.encode(enc_x_batch)  # encoder编码
 
     # Decoder阶段
     en_token_ids = [BOS_IDX]  # 翻译结果
     while len(en_token_ids) < max_len:
-        dec_x_batch = torch.tensor([en_token_ids],
-                                   dtype=torch.long).to(DEVICE)  # 准备decoder输入
-        decoder_z = transformer.decode(dec_x_batch, encoder_z,
-                                       enc_x_batch)  # decoder解碼
-        next_token_probs = decoder_z[0,
-                                     dec_x_batch.size(-1) - 1, :]  # 序列下一个词的概率
+        dec_x_batch = torch.tensor([en_token_ids], dtype=torch.long).to(DEVICE)  # 准备decoder输入
+        decoder_z = transformer.decode(dec_x_batch, encoder_z, enc_x_batch)  # decoder解碼
+        next_token_probs = decoder_z[0, dec_x_batch.size(-1) - 1, :]  # 序列下一个词的概率
         next_token_id = torch.argmax(next_token_probs)  # 下一个词ID
         en_token_ids.append(next_token_id)
 
