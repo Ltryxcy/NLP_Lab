@@ -86,6 +86,9 @@ if __name__ == '__main__':
     loss_fn = nn.CrossEntropyLoss(ignore_index=PAD_IDX)  # 序列的pad词不参与损失计算
     optimizer = torch.optim.SGD(transformer.parameters(), lr=1e-3, momentum=0.99)
 
+    # 保存loss，用于绘图
+    loss_list = []
+
     # 训练模型
     transformer.train()  # 训练模式
     EPOCHS = 1000
@@ -114,3 +117,14 @@ if __name__ == '__main__':
             loss.backward()  # 反向传播计算梯度
             optimizer.step()  # 更新参数
         torch.save(transformer, 'checkpoints/model_1.pth'.format(epoch))  # 保存模型
+        loss_list.append(loss_sum)
+
+    # 画出loss曲线
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set(title='Loss Curve', xlabel='epoch', ylabel='loss')
+    ax.plot(range(len(loss_list)), loss_list)
+    plt.show()
+    plt.savefig('loss.png')
+    print('done')
