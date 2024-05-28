@@ -1,4 +1,5 @@
 import torchtext
+
 torchtext.disable_torchtext_deprecation_warning()
 import nltk
 import torch
@@ -6,6 +7,7 @@ from dataset import de_preprocess, BOS_IDX, EOS_IDX, UNK_IDX, PAD_IDX, en_vocab
 from config import DEVICE, max_len
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from dataset import valid_dataset
+
 
 # de翻译到en
 def translate(transformer, de_sentence):
@@ -47,14 +49,10 @@ def translate(transformer, de_sentence):
 from torchtext.data.metrics import bleu_score
 
 if __name__ == '__main__':
-    # 加载模型
-    # model_path = '../llama/llama-2-7b/consolidated.00.pth'
-    # model = torch.load(model_path)
-    # model = model.to(DEVICE)
-    # model.eval()
+    # 加载Adam模型
     transformer = torch.load('checkpoints/model_1.pth')
     transformer.eval()
-    
+
     # 初始化 BLEU 分数计算
     bleu_scores1 = []
     bleu_scores2 = []
@@ -63,34 +61,29 @@ if __name__ == '__main__':
     for de, en in valid_dataset:
         # 获取模型翻译结果
         en_pred = translate(transformer, de)
-        # en_pred = translate(model, de)
-        
+
         # 将模型翻译结果和参考翻译进行分词
         en_pred_tokens = en_pred.split()
         en_ref_tokens = en.split()
-        
+
         # 计算句子级 BLEU 分数
         bleu_score_sentence = bleu_score([en_pred_tokens], [[en_ref_tokens]])
         bleu_scores1.append(bleu_score_sentence)
-        
-        # 打印结果
-        # print(f'{de} -> {en} -> {en_pred} (BLEUScore: {bleu_score_sentence * 100.0:.4f})')
-        # print(f'(BLEUScore: {bleu_score_sentence * 100.0 :.4f})')
-    
+
     # 计算平均 BLEU 分数
     avg_bleu_score = sum(bleu_scores1) / len(bleu_scores1)
     print(f'Average BLEU Score for Adam: {avg_bleu_score *100.0:.4f}')
+
+    # 加载SGD模型
     transformer = torch.load('checkpoints/model.pth')
     transformer.eval()
     for de, en in valid_dataset:
         en_pred = translate(transformer, de)
         en_pred_tokens = en_pred.split()
         en_ref_tokens = en.split()
-        
+
         bleu_score_sentence = bleu_score([en_pred_tokens], [[en_ref_tokens]])
         bleu_scores2.append(bleu_score_sentence)
-        
+
     avg_bleu_score_2 = sum(bleu_scores2) / len(bleu_scores2)
     print(f'Average BLEU Score for SGD: {avg_bleu_score_2 *100.0:.4f}')
-
-    

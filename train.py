@@ -67,9 +67,9 @@ if __name__ == '__main__':
                             collate_fn=collate_fn)
 
     # 模型
-    # try:
-    #     transformer = torch.load('checkpoints/model.pth')
-    # except:
+    try:
+        transformer = torch.load('checkpoints/model.pth')
+    except:
     transformer = Trans(enc_vocab_size=len(de_vocab),
                             dec_vocab_size=len(en_vocab),
                             emb_size=512,
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     EPOCHS = 1000
     for epoch in range(EPOCHS):
         # lr = pow(512, -0.5) * min((epoch+1e-9)**(-0.5),
-        #                           (epoch+1e-9) * pow(12, -1.5))  # 根据论文公式，计算学习率
+        #                           (epoch+1e-9) * pow(4000, -1.5))  # 根据论文公式，计算学习率
         # optimizer = torch.optim.Adam(transformer.parameters(),
         #                              lr=lr,
         #                              betas=(0.9, 0.98),
@@ -110,8 +110,8 @@ if __name__ == '__main__':
             loss = loss_fn(dec_z.view(-1,
                                       dec_z.size()[-1]), real_dec_z.view(-1))
             loss_sum += loss.item()  # 计算一个epoch内所有batch的loss之和
-            # print('epoch:{} batch:{} loss:{}'.format(epoch, batch_i,
-            #                                          loss.item()))
+            print('epoch:{} batch:{} loss:{}'.format(epoch, batch_i,
+                                                     loss.item()))
 
             optimizer.zero_grad()
             loss.backward()  # 反向传播计算梯度
