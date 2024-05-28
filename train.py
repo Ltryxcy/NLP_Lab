@@ -117,7 +117,7 @@ if __name__ == '__main__':
             loss.backward()  # 反向传播计算梯度
             optimizer.step()  # 更新参数
         torch.save(transformer, 'checkpoints/model_1.pth'.format(epoch))  # 保存模型
-        loss_list.append(loss_sum)
+        loss_list.append(loss_sum / batch_i)  # 计算一个epoch内所有batch的loss均值
 
     # 画出loss曲线
     import matplotlib.pyplot as plt
@@ -125,6 +125,6 @@ if __name__ == '__main__':
     ax = fig.add_subplot(111)
     ax.set(title='Loss Curve', xlabel='epoch', ylabel='loss')
     ax.plot(range(len(loss_list)), loss_list)
-    plt.show()
     plt.savefig('loss.png')
+    plt.show()
     print('done')
